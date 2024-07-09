@@ -10,7 +10,7 @@ pub fn calculate_active_position_pl(position: &impl CrossMarginActivePosition) -
         * position.get_lots_amount();
 
     let pl = match position.get_side() {
-        &CrossMarginPositionSide::Buy => position.get_active_price() - open_side,
+        &CrossMarginPositionSide::Buy => close_side - open_side,
         &CrossMarginPositionSide::Sell => open_side - close_side,
     } * position.get_profit_price();
 
