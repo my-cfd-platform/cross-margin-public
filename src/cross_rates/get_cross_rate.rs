@@ -23,10 +23,10 @@ pub fn get_cross_rate(
             let left = price_src.get_bid_ask(left);
             let right = price_src.get_bid_ask(right);
 
-            return Ok(CrossRate {
+            Ok(CrossRate {
                 bid: left.get_bid() * right.get_ask(),
                 ask: left.get_ask() * right.get_bid(),
-            });
+            })
         }
         crate::CrossMarginCrossPairType::DiffSide { left, right } => {
             let (left_bid, left_ask) = match left {
@@ -61,10 +61,10 @@ pub fn get_cross_rate(
                 }
             };
 
-            return Ok(CrossRate {
+            Ok(CrossRate {
                 bid: left_bid * right_bid,
                 ask: left_ask * right_ask,
-            });
+            })
         }
     }
 }

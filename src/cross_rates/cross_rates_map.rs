@@ -27,7 +27,7 @@ impl CrossMarginCrossRatesMatrix {
     }
 
     pub fn get_target_cross(&self, base: &str, quote: &str) -> Option<&CrossMarginCrossRatePair>{
-        Some(self.pairs.get(base)?.get(quote)?)
+        self.pairs.get(base)?.get(quote)
     }
 }
 
@@ -98,8 +98,8 @@ fn find_cross_pair(
         }
     }
 
-    return Err(CrossMarginPublicError::FailedToGenerateCross(format!(
+    Err(CrossMarginPublicError::FailedToGenerateCross(format!(
         "Failed to find cross for {} - {}",
         base, quote
-    )));
+    )))
 }
