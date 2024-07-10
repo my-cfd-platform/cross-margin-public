@@ -1,6 +1,6 @@
 use crate::CrossMarginActivePosition;
 
-pub async fn calculate_account_equity(
+pub fn calculate_account_equity(
     account_balance: f64,
     active_positions: &[&impl CrossMarginActivePosition],
 ) -> f64 {
