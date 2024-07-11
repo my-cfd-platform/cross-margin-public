@@ -35,5 +35,5 @@ pub trait CrossMarginPriceSourceBidAsk{
 }
 
 pub trait CrossMarginPriceSource {
-    fn get_bid_ask(&self, id: &str) -> impl CrossMarginPriceSourceBidAsk;
+    fn get_bid_ask(&self, id: &str) -> Option<impl CrossMarginPriceSourceBidAsk>;
 }

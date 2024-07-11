@@ -13,4 +13,5 @@ pub enum CrossMarginPublicError {
     CrossPairNotFoundInMatrix(String),
     FailedToFindAssetForCrossCalculate(String),
     FailedToCalculateCross(String),
+    FailedToFindSourceBidAsk(String),
 }
