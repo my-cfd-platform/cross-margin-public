@@ -1,8 +1,24 @@
+use cross_calculations::core::CrossCalculationsSourceInstrument;
+
 #[derive(Debug, Clone)]
 pub struct CrossMarginSourceInstrument {
     pub id: String,
     pub base: String,
     pub quote: String,
+}
+
+impl CrossCalculationsSourceInstrument for CrossMarginSourceInstrument {
+    fn get_id(&self) -> &str {
+        &self.id
+    }
+
+    fn get_base(&self) -> &str {
+        &self.base
+    }
+
+    fn get_quote(&self) -> &str {
+        &self.quote
+    }
 }
 
 pub struct CrossMarginCrossRatePair {
@@ -29,11 +45,7 @@ pub enum CrossMarginCrossPairDiffSideType {
     Reversed(String),
 }
 
-pub trait CrossMarginPriceSourceBidAsk{
+pub trait CrossMarginPriceSourceBidAsk {
     fn get_bid(&self) -> f64;
     fn get_ask(&self) -> f64;
-}
-
-pub trait CrossMarginPriceSource {
-    fn get_bid_ask(&self, id: &str) -> Option<impl CrossMarginPriceSourceBidAsk>;
 }

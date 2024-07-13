@@ -5,3 +5,4 @@ edition = "2021"
 
 [dependencies]
 serde = {version = "*", features = ["derive"]}
+cross-calculations = { git = "https://github.com/my-cfd-platform/cross-calculations.git", tag = "0.1.2" }

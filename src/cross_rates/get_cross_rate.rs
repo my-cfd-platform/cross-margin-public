@@ -1,7 +1,6 @@
-use crate::{
-    CrossMarginCrossRatesMatrix, CrossMarginPriceSource, CrossMarginPriceSourceBidAsk,
-    CrossMarginPublicError,
-};
+use cross_calculations::core::CrossCalculationsPriceSource;
+
+use crate::{CrossMarginCrossRatesMatrix, CrossMarginPublicError};
 
 pub struct CrossRate {
     pub bid: f64,
@@ -10,73 +9,23 @@ pub struct CrossRate {
 
 pub fn get_cross_rate(
     cross_matrix: &CrossMarginCrossRatesMatrix,
-    price_src: &impl CrossMarginPriceSource,
+    price_src: &impl CrossCalculationsPriceSource,
     base: &str,
     quote: &str,
 ) -> Result<CrossRate, CrossMarginPublicError> {
-    let target_pair = cross_matrix.get_target_cross(base, quote).ok_or(
-        CrossMarginPublicError::CrossPairNotFoundInMatrix(format!("{}{}", base, quote)),
-    )?;
+    let result = cross_calculations::core::get_cross_rate(
+        base,
+        quote,
+        &cross_matrix.matrix,
+        price_src,
+        false,
+    );
 
-    match &target_pair.price {
-        crate::CrossMarginCrossPairType::SameSide { left, right } => {
-            let left = price_src.get_bid_ask(left).ok_or(
-                CrossMarginPublicError::FailedToFindSourceBidAsk(left.to_string()),
-            )?;
-            let right = price_src.get_bid_ask(right).ok_or(
-                CrossMarginPublicError::FailedToFindSourceBidAsk(right.to_string()),
-            )?;
-
-            Ok(CrossRate {
-                bid: left.get_bid() * right.get_ask(),
-                ask: left.get_ask() * right.get_bid(),
-            })
-        }
-        crate::CrossMarginCrossPairType::DiffSide { left, right } => {
-            let (left_bid, left_ask) = match left {
-                crate::CrossMarginCrossPairDiffSideType::Direct(src) => {
-                    let src_bid_ask = price_src.get_bid_ask(src).ok_or(
-                        CrossMarginPublicError::FailedToFindSourceBidAsk(src.to_string()),
-                    )?;
-
-                    (src_bid_ask.get_bid(), src_bid_ask.get_ask())
-                }
-                crate::CrossMarginCrossPairDiffSideType::Reversed(src) => {
-                    let source_bid_ask = price_src.get_bid_ask(src).ok_or(
-                        CrossMarginPublicError::FailedToFindSourceBidAsk(src.to_string()),
-                    )?;
-
-                    (
-                        1.0 / source_bid_ask.get_ask(),
-                        1.0 / source_bid_ask.get_bid(),
-                    )
-                }
-            };
-
-            let (right_bid, right_ask) = match right {
-                crate::CrossMarginCrossPairDiffSideType::Direct(src) => {
-                    let src_bid_ask = price_src.get_bid_ask(src).ok_or(
-                        CrossMarginPublicError::FailedToFindSourceBidAsk(src.to_string()),
-                    )?;
-
-                    (src_bid_ask.get_bid(), src_bid_ask.get_ask())
-                }
-                crate::CrossMarginCrossPairDiffSideType::Reversed(src) => {
-                    let source_bid_ask = price_src.get_bid_ask(src).ok_or(
-                        CrossMarginPublicError::FailedToFindSourceBidAsk(src.to_string()),
-                    )?;
-
-                    (
-                        1.0 / source_bid_ask.get_ask(),
-                        1.0 / source_bid_ask.get_bid(),
-                    )
-                }
-            };
-
-            Ok(CrossRate {
-                bid: left_bid * right_bid,
-                ask: left_ask * right_ask,
-            })
-        }
+    match result {
+        Ok(rate) => Ok(CrossRate {
+            bid: rate.bid,
+            ask: rate.ask,
+        }),
+        Err(err) => Err(CrossMarginPublicError::from(err)),
     }
 }
