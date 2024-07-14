@@ -10,7 +10,7 @@ impl CrossMarginCrossRatesMatrix {
     pub fn new(
         collaterals: &[&str],
         instruments: &[&CrossMarginSourceInstrument],
-    ) -> Result<Self, CrossMarginPublicError> {
+    ) -> Result<Self, Vec<CrossMarginPublicError>> {
         let crosses = generate_required_crosses(collaterals, instruments);
 
         let matrix = match CrossCalculationsCrossPairsMatrix::new(
@@ -21,7 +21,10 @@ impl CrossMarginCrossRatesMatrix {
             instruments,
         ) {
             Ok(src) => Ok(src),
-            Err(err) => Err(CrossMarginPublicError::from(err)),
+            Err(err) => Err(err
+                .into_iter()
+                .map(CrossMarginPublicError::from)
+                .collect::<Vec<_>>()),
         }?;
 
         Ok(Self { matrix })
